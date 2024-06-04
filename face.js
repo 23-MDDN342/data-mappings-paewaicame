@@ -3,6 +3,8 @@
 * face and is able to draw itself.
 */
 
+let randomSeedMultiplier = Math.random(10,1000);
+
 // remove this or set to false to enable full program (load will be slower)
 var DEBUG_MODE = false;
 
@@ -11,10 +13,6 @@ var NUM_SLIDERS = 3;
 
 // other variables can be in here too
 // here's some examples for colors used
-
-
-
-
 const stroke_color = [95, 52, 8];
 
 // example of a global function
@@ -64,22 +62,32 @@ function Face() {
     this.chinColour = [153, 153, 51];
     this.lipColour = [136, 68, 68];
     this.eyebrowColour = [119, 85, 17];
+
+    this.skintoneLevel = 0.5
+    this.genderIdentity = 0
+    this.age = 30
+
+    this.skintoneChoiceX = 0.5;
+    this.hairtoneChoiceX = 0.5;
+    this.hairtoneChoiceY = 0.5;
+    this.eyesChoice = 0.5;
+    this.noseChoice = 0.5;
+    this.mouthChoice = 0.5;
+    this.hairChoice = 0.5;
+
+    this.skintone = hairtonesImage.get(0.5 * (hairtonesImage.width-1), 0.5 * (hairtonesImage.height-1)); // select a random colour from hair colour palette image
+    this.hairtone = hairtonesImage.get(0,5 * (hairtonesImage.width-1), 0.5 * (hairtonesImage.height-1)); // select a random colour from hair colour palette image
+    this.eyes = Math.floor(this.eyesChoice * Object.keys(eyesIndex).length); // randomly select eyes
+    this.nose = Math.floor(this.noseChoice * Object.keys(noseIndex).length); // randomly select nose
+    this.mouth = Math.floor(this.mouthChoice * Object.keys(mouthIndex).length); // randomly select mouth
+    this.hair = Math.floor(this.hairChoice * Object.keys(hairIndex).length); // randomly select hair
     
-    this.skintone = skintonesImage.get(random(0, skintonesImage.width), random(0, skintonesImage.height)), // select a random colour from skin tone palette image
-    this.hairtone = hairtonesImage.get(random(0, hairtonesImage.width), random(0, hairtonesImage.height)), // select a random colour from hair colour palette image
-    this.eyes = Math.floor(random() * Object.keys(eyesIndex).length), // randomly select eyes
-    this.eyesInterpupillaryDistance = getAveragedRandom(4,16,8), // Averaged random for eye distance
-    this.eyesScale = getAveragedRandom(0.6,1.2,3), // Averaged random for eye size
-    this.eyesRandomSquishedChoice = random(), // Simple random for eye variant (if applicable)
-    this.nose = Math.floor(random() * Object.keys(noseIndex).length), // randomly select nose
-    this.noseScale = getAveragedRandom(0,1.6,5), // Averaged random for nose size
-    this.mouth = Math.floor(random() * Object.keys(mouthIndex).length), // randomly select mouth
-    this.mouthScale = getAveragedRandom(0.6,1,3), // Averaged random for mouth size
-    this.baldChance = random() > 0.6 ? true : false, // Fixed 60% chance of having hair
-    this.hair = Math.floor(random() * Object.keys(hairIndex).length), // randomly select hair
-    this.hairScale = faceWidth/15, // calculate hair size, as wide as the face width
-    this.squishTolerance = map(random(),0,1,-0.9,0.3), // Random squish tolerance -0.9 and 0.3
-    
+    this.eyesScale = 1; // Averaged random for eye size
+    this.eyesRandomSquishedChoice = 0.5; // Simple random for eye variant (if applicable)
+    this.noseScale = 1; // Averaged random for nose size
+    this.mouthScale = 1; // Averaged random for mouth size
+    this.hairScale = faceWidth/15; // calculate hair size, as wide as the face width
+
     /*
     * Draw the face with position lists that include:
     *    chin, right_eye, left_eye, right_eyebrow, left_eyebrow
@@ -116,11 +124,11 @@ function Face() {
         // ellipse(segment_average(positions.bottom_lip)[0], segment_average(positions.bottom_lip)[1], 1.36, 0.25 * this.mouth_size);
 
         // eyebrows
-        fill(this.eyebrowColour);
-        stroke(this.eyebrowColour);
-        strokeWeight(0.08);
-        this.draw_segment(positions.left_eyebrow);
-        this.draw_segment(positions.right_eyebrow);
+        // fill(this.eyebrowColour);
+        // stroke(this.eyebrowColour);
+        // strokeWeight(0.08);
+        // this.draw_segment(positions.left_eyebrow);
+        // this.draw_segment(positions.right_eyebrow);
         
         // // draw the chin segment using points
         // fill(this.chinColour);
@@ -143,7 +151,7 @@ function Face() {
         // let left_eye_pos = segment_average(positions.left_eye);
         // let right_eye_pos = segment_average(positions.right_eye);
 
-        // // eyes
+        // eyes
         // noStroke();
         // let curEyeShift = 0.04 * this.eye_shift;
         // if (this.num_eyes == 2) {
@@ -185,22 +193,49 @@ function Face() {
     
     /* set internal properties based on list numbers 0-100 */
     this.setProperties = function (settings) {
-        this.num_eyes = int(map(settings[0], 0, 100, 1, 2));
-        this.eye_shift = map(settings[1], 0, 100, -2, 2);
-        this.mouth_size = map(settings[2], 0, 100, 0.5, 8);
+        this.skintoneLevel = map(settings[0], 0, 100, 0, 1);
+        this.genderIdentity = map(settings[1], 0, 100, 0, 1);
+        this.age = map(settings[2], 0, 100, 0, 1);
     };
     
     /* get internal properties as list of numbers 0-100 */
     this.getProperties = function () {
         let settings = new Array(3);
-        settings[0] = map(this.num_eyes, 1, 2, 0, 100);
-        settings[1] = map(this.eye_shift, -2, 2, 0, 100);
-        settings[2] = map(this.mouth_size, 0.5, 8, 0, 100);
+        settings[0] = map(this.skintoneLevel, 0, 1, 0, 100);
+        settings[1] = map(this.genderIdentity, 0, 1, 0, 100);
+        settings[2] = map(this.age, 0, 1, 0, 100);
         return settings;
     };
 
     this.drawFace = function (positions,background,shadow) {
         rectMode(CENTER); // center drawing coordinates
+
+        this.skintonesImageSelected = this.genderIdentity < 0.5 ? skintonesFeminineImage : skintonesMasculineImage;
+
+        let chinPosition0 = positions.chin[0][0] * randomSeedMultiplier;
+        let chinPosition1 = positions.chin[1][0] * randomSeedMultiplier;
+        let chinPosition2 = positions.chin[2][0] * randomSeedMultiplier;
+        let chinPosition3 = positions.chin[3][0] * randomSeedMultiplier;
+        let chinPosition4 = positions.chin[4][0] * randomSeedMultiplier;
+        let chinPosition5 = positions.chin[5][0] * randomSeedMultiplier;
+        let chinPosition6 = positions.chin[6][0] * randomSeedMultiplier;
+
+        this.skintoneChoiceX = Math.abs(chinPosition0 - Math.trunc(chinPosition0));
+        this.hairtoneChoiceX = Math.abs(chinPosition1 - Math.trunc(chinPosition1));
+        this.hairtoneChoiceY = Math.abs(chinPosition2 - Math.trunc(chinPosition2));
+        this.eyesChoice = Math.abs(chinPosition3 - Math.trunc(chinPosition3));
+        this.noseChoice = Math.abs(chinPosition4 - Math.trunc(chinPosition4));
+        this.mouthChoice = Math.abs(chinPosition5 - Math.trunc(chinPosition5));
+        this.hairChoice = Math.abs(chinPosition6 - Math.trunc(chinPosition6));
+
+        this.skintone = this.skintonesImageSelected.get(this.skintoneChoiceX * (this.skintonesImageSelected.width - 1), this.skintoneLevel * (this.skintonesImageSelected.height - 1)); // select a random colour from skin tone palette image
+        this.hairtone = hairtonesImage.get(this.hairtoneChoiceX * (hairtonesImage.width-1), this.hairtoneChoiceY * (hairtonesImage.height-1)); // select a random colour from hair colour palette image
+
+        this.eyes = Math.floor(this.eyesChoice * Object.keys(eyesIndex).length); // randomly select eyes
+        this.nose = Math.floor(this.noseChoice * Object.keys(noseIndex).length); // randomly select nose
+        this.mouth = Math.floor(this.mouthChoice * Object.keys(mouthIndex).length); // randomly select mouth
+        this.hair = Math.floor(this.hairChoice * Object.keys(hairIndex).length); // randomly select hair    
+
         if (background) { // no features, just draw colour background and return
             noStroke();
             fill(this.skintone);
@@ -218,15 +253,19 @@ function Face() {
             stroke(paletteStroke);
         }
         
-        // let faceState = squishFactor < this.squishTolerance ? false : true; // changes state when squish factor surpasses the face's own squish tolerance
         let faceDistance = Math.sqrt((positions.bottom_lip[3][0] - positions.top_lip[3][0]) ** 2 + (positions.bottom_lip[3][1] - positions.top_lip[3][1]) ** 2);
-        let faceState = faceDistance > 0.5 ? false : true;
+        let faceState = faceDistance > 0.6 ? false : true;
 
         let eyesSelected = this.eyes; // selected eyes index
         let eyesNeutral = eyesIndex[eyesSelected].neutral; // selected eyes, neutral variant
         let eyesSquishedSelected = Math.floor(map(this.eyesRandomSquishedChoice,0,1,0,eyesIndex[eyesSelected].squished.length)); // pick from possible squished variants
         let eyesSquished = eyesIndex[eyesSelected].squished[eyesSquishedSelected]; // select eyes, squished variant
-        let eyesInterpupillaryDistance = map(squishFactor,-1,1,this.eyesInterpupillaryDistance*0.65,this.eyesInterpupillaryDistance); // calculate interpupillary distance based on squish factor
+        
+        let positionLeftEye = segment_average(positions.left_eye);
+        let positionRightEye = segment_average(positions.right_eye);
+        
+        // let eyesInterpupillaryDistance = map(squishFactor,-1,1,this.eyesInterpupillaryDistance*0.65,this.eyesInterpupillaryDistance); // calculate interpupillary distance based on squish factor
+        let eyesInterpupillaryDistance = (positionRightEye[0] - positionLeftEye[0] * 10) ; // calculate interpupillary distance based on squish factor
         let eyesHeightOffset = map(squishFactor,-1,1,-3,-4); // calculate height offset based on squish factor
         
         let noseSelected = this.nose; // selected nose index
@@ -250,7 +289,6 @@ function Face() {
         translate(eyesInterpupillaryDistance / 2, 0);
         scale(this.eyesScale);
         strokeWeight(defaultStrokeWeight/this.eyesScale);
-        circle()
         pop();
 
 
@@ -311,9 +349,10 @@ function Face() {
         scale(faceWidth/15);
         strokeWeight(defaultStrokeWeight/(faceWidth/15));
         
-        if (this.baldChance) { // don't draw hair if bald
-            line(-7.5,0,7.5,0);
-        } else { // draw hair if not bald
+        if (this.age >= 0.7) { // draw white hair if age exceeds 0.7
+            fill(205,209,218);
+        } 
+        if (this.age < 0.85) { // draw hair, unless age exceeds 0.85
             hairIndex[hairSelected]();
         }
         pop();

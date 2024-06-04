@@ -42,9 +42,13 @@ if (typeof NUM_SLIDERS === 'undefined' || NUM_SLIDERS === null) {
 }
 
 let skintonesImage;
+let skintonesFeminineImage;
+let skintonesMasculineImage;
 let hairtonesImage;
 async function preload() {
     skintonesImage = loadImage('resources/skintones.png');
+    skintonesFeminineImage = loadImage('resources/skintonesFeminine.png');
+    skintonesMasculineImage = loadImage('resources/skintonesMasculine.png');
     hairtonesImage = loadImage('resources/hairtones.png');
     sample_images = loadJSON('sample_images.json');
     trainValues = loadJSON('training_values.json');
@@ -160,7 +164,7 @@ function setup() {
     facePointsCheckbox.parent('checkbox3Container');
 
     if (!DEBUG_MODE) {
-        sliderTint = createSlider(0, 100, 10);
+        sliderTint = createSlider(0, 100, 100);
         sliderTint.parent("sliderTintContainer");
 
         var interpButton = createButton('interpolate');
@@ -1002,7 +1006,7 @@ function interpolateCurrent() {
 }
 
 function loadCurrentSettings() {
-    var curKey = trainDataKeys[curTrainIndex];
+    var curKey = trainDataKeys[curTrainIndex];        
     var mainSettings = mainFace.getProperties();
     for (var i = 0; i < NUM_SLIDERS; i++) {
         if (i < mainSettings.length) {
