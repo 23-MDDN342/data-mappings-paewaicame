@@ -16,7 +16,7 @@ To add some interactivity to my faces, especially when applying the faces in rea
 
 My faces in Project 2 randomly selected qualities like hair, eyes, nose, and mouth from a discrete collection of functions. Since the code in this project is object-oriented, using random values didn't work correctly and would generate the same kind of face for each person, outside of the trained values. I solved this by sampling positions from the chin segments of the face tracking data, and manipulating them to produce pseudo-random numbers instead.
 
-While this would break the real-time video mode and wouldn't yield different faces when the same face tracking positions are applied to multiple faces, it would produce varied expression for each face image. I combined this with a random seed that is generated at the beginning of the code to produce different faces for each image each time the page is reloaded.
+While this would break the real-time video mode and wouldn't yield different faces when the same face tracking positions are applied to multiple faces (such as in the Training Quiz mode), it would produce varied expression for each face image. I combined this with a random seed that is generated at the beginning of the code to produce different faces for each image each time the page is reloaded.
 ## Training
 In terms of training, I selected three facial properties that were visually apparent: gender identity, skin tone, and estimated age. I chose them because my faces from Project 2 are not very complicated and don't have many specific qualities to tie to real face qualities. It also gave my faces the opportunity to respond to the training data in unique ways.
 

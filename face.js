@@ -28,7 +28,6 @@ function segment_average(segment) {
     return [sum_x / s_len, sum_y / s_len];
 }
 
-
 // global variables for colors
 const paletteBackground = [0, 0, 0];
 const paletteStroke = [22, 20, 31, 255];
@@ -51,22 +50,12 @@ let defaultStrokeWeight = 1;
 
 // This where you define your own face object
 function Face() {
-    // these are state variables for a face
-    // (your variables should be different!)
-    this.detailColour = [204, 136, 17];
-    this.mainColour = [51, 119, 153];
-    this.num_eyes = 2;    // can be either 1 (cyclops) or 2 (two eyes)
-    this.eye_shift = -1;   // range is -10 to 10
-    this.mouth_size = 1;  // range is 0.5 to 8
-    
-    this.chinColour = [153, 153, 51];
-    this.lipColour = [136, 68, 68];
-    this.eyebrowColour = [119, 85, 17];
-
+    // defining trained variables
     this.skintoneLevel = 0.5
     this.genderIdentity = 0
     this.age = 30
 
+    // defining variables to adjust later in the draw function
     this.skintoneChoiceX = 0.5;
     this.hairtoneChoiceX = 0.5;
     this.hairtoneChoiceY = 0.5;
@@ -74,14 +63,14 @@ function Face() {
     this.noseChoice = 0.5;
     this.mouthChoice = 0.5;
     this.hairChoice = 0.5;
-
     this.skintone = hairtonesImage.get(0.5 * (hairtonesImage.width-1), 0.5 * (hairtonesImage.height-1)); // select a random colour from hair colour palette image
     this.hairtone = hairtonesImage.get(0,5 * (hairtonesImage.width-1), 0.5 * (hairtonesImage.height-1)); // select a random colour from hair colour palette image
-    this.eyes = Math.floor(this.eyesChoice * Object.keys(eyesIndex).length); // randomly select eyes
-    this.nose = Math.floor(this.noseChoice * Object.keys(noseIndex).length); // randomly select nose
-    this.mouth = Math.floor(this.mouthChoice * Object.keys(mouthIndex).length); // randomly select mouth
-    this.hair = Math.floor(this.hairChoice * Object.keys(hairIndex).length); // randomly select hair
+    this.eyes = Math.floor(0.5 * Object.keys(eyesIndex).length); // randomly select eyes
+    this.nose = Math.floor(0.5 * Object.keys(noseIndex).length); // randomly select nose
+    this.mouth = Math.floor(0.5 * Object.keys(mouthIndex).length); // randomly select mouth
+    this.hair = Math.floor(0.5 * Object.keys(hairIndex).length); // randomly select hair
     
+    // defines scale, used to be parameterised but is fixed in this project for consistency
     this.eyesScale = 1; // Averaged random for eye size
     this.eyesRandomSquishedChoice = 0.5; // Simple random for eye variant (if applicable)
     this.noseScale = 1; // Averaged random for nose size
@@ -111,64 +100,6 @@ function Face() {
             pop();
 
         pop();
-
-        // // head
-        // ellipseMode(CENTER);
-        // stroke(stroke_color);
-        // fill(this.mainColour);
-        // ellipse(segment_average(positions.chin)[0], 0, 3, 4);
-        // noStroke();
-        
-        // mouth
-        // fill(this.detailColour);
-        // ellipse(segment_average(positions.bottom_lip)[0], segment_average(positions.bottom_lip)[1], 1.36, 0.25 * this.mouth_size);
-
-        // eyebrows
-        // fill(this.eyebrowColour);
-        // stroke(this.eyebrowColour);
-        // strokeWeight(0.08);
-        // this.draw_segment(positions.left_eyebrow);
-        // this.draw_segment(positions.right_eyebrow);
-        
-        // // draw the chin segment using points
-        // fill(this.chinColour);
-        // stroke(this.chinColour);
-        // this.draw_segment(positions.chin);
-        
-        // // nose
-        // fill(100, 0, 100);
-        // stroke(100, 0, 100);
-        // this.draw_segment(positions.nose_bridge);
-        // this.draw_segment(positions.nose_tip);
-        
-        // strokeWeight(0.03);
-        
-        // fill(this.lipColour);
-        // stroke(this.lipColour);
-        // this.draw_segment(positions.top_lip);
-        // this.draw_segment(positions.bottom_lip);
-        
-        // let left_eye_pos = segment_average(positions.left_eye);
-        // let right_eye_pos = segment_average(positions.right_eye);
-
-        // eyes
-        // noStroke();
-        // let curEyeShift = 0.04 * this.eye_shift;
-        // if (this.num_eyes == 2) {
-        //     fill(this.detailColour);
-        //     ellipse(left_eye_pos[0], left_eye_pos[1], 0.5, 0.33);
-        //     ellipse(right_eye_pos[0], right_eye_pos[1], 0.5, 0.33);
-        // }
-        // else {
-        //     let eyePosX = (left_eye_pos[0] + right_eye_pos[0]) / 2;
-        //     let eyePosY = (left_eye_pos[1] + right_eye_pos[1]) / 2;
-        
-        //     fill(this.detailColour);
-        //     ellipse(eyePosX, eyePosY, 0.45, 0.27);
-        
-        //     fill(this.mainColour);
-        //     ellipse(eyePosX - 0.1 + curEyeShift, eyePosY, 0.18);
-        // }
     };
     
     // example of a function *inside* the face object.
@@ -210,8 +141,10 @@ function Face() {
     this.drawFace = function (positions,background,shadow) {
         rectMode(CENTER); // center drawing coordinates
 
+        // determines skin colour based on gender identity
         this.skintonesImageSelected = this.genderIdentity < 0.5 ? skintonesFeminineImage : skintonesMasculineImage;
 
+        // defines pseudo-random values based on chin positions
         let chinPosition0 = positions.chin[0][0] * randomSeedMultiplier;
         let chinPosition1 = positions.chin[1][0] * randomSeedMultiplier;
         let chinPosition2 = positions.chin[2][0] * randomSeedMultiplier;
@@ -219,7 +152,6 @@ function Face() {
         let chinPosition4 = positions.chin[4][0] * randomSeedMultiplier;
         let chinPosition5 = positions.chin[5][0] * randomSeedMultiplier;
         let chinPosition6 = positions.chin[6][0] * randomSeedMultiplier;
-
         this.skintoneChoiceX = Math.abs(chinPosition0 - Math.trunc(chinPosition0));
         this.hairtoneChoiceX = Math.abs(chinPosition1 - Math.trunc(chinPosition1));
         this.hairtoneChoiceY = Math.abs(chinPosition2 - Math.trunc(chinPosition2));
@@ -228,9 +160,9 @@ function Face() {
         this.mouthChoice = Math.abs(chinPosition5 - Math.trunc(chinPosition5));
         this.hairChoice = Math.abs(chinPosition6 - Math.trunc(chinPosition6));
 
+        // selects attributes to apply to faces
         this.skintone = this.skintonesImageSelected.get(this.skintoneChoiceX * (this.skintonesImageSelected.width - 1), this.skintoneLevel * (this.skintonesImageSelected.height - 1)); // select a random colour from skin tone palette image
         this.hairtone = hairtonesImage.get(this.hairtoneChoiceX * (hairtonesImage.width-1), this.hairtoneChoiceY * (hairtonesImage.height-1)); // select a random colour from hair colour palette image
-
         this.eyes = Math.floor(this.eyesChoice * Object.keys(eyesIndex).length); // randomly select eyes
         this.nose = Math.floor(this.noseChoice * Object.keys(noseIndex).length); // randomly select nose
         this.mouth = Math.floor(this.mouthChoice * Object.keys(mouthIndex).length); // randomly select mouth
@@ -264,7 +196,6 @@ function Face() {
         let positionLeftEye = segment_average(positions.left_eye);
         let positionRightEye = segment_average(positions.right_eye);
         
-        // let eyesInterpupillaryDistance = map(squishFactor,-1,1,this.eyesInterpupillaryDistance*0.65,this.eyesInterpupillaryDistance); // calculate interpupillary distance based on squish factor
         let eyesInterpupillaryDistance = (positionRightEye[0] - positionLeftEye[0] * 10) ; // calculate interpupillary distance based on squish factor
         let eyesHeightOffset = map(squishFactor,-1,1,-3,-4); // calculate height offset based on squish factor
         
@@ -367,6 +298,8 @@ function getAveragedRandom(min, max, n) { // from nuku
     return sum / n;
 }
 
+
+// defining discrete attributes to select from
 let eyesIndex = {
     0: {
         neutral: function () { // single dots
